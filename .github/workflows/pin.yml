@@ -1,0 +1,44 @@
+name: Generate PIN via Bash Script
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Create Termux-style script
+        run: |
+          cat > bot.sh <<'EOF'
+          #!/usr/bin/env bash
+
+          echo "=== Termux-style PIN Generator ==="
+
+          PIN=$(shuf -i 1000-9999 -n 1)
+
+          echo "Generated PIN: $PIN"
+
+          echo "$PIN" > pin.txt
+
+          echo "pin=$PIN" >> $GITHUB_OUTPUT
+          EOF
+
+      - name: Make executable
+        run: chmod +x bot.sh
+
+      - name: Run script
+        id: runbot
+        run: ./bot.sh
+
+      - name: Show PIN
+        run: echo "PIN = ${{ steps.runbot.outputs.pin }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pin-file
+          path: pin.txt
