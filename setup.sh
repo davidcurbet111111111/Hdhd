@@ -24,8 +24,8 @@ sudo apt install -y openssh-server curl wget unzip
 
 # Start SSH
 echo "🔐 Starting SSH..."
-sudo systemctl enable ssh
-sudo systemctl restart ssh
+sudo service ssh start
+sudo service ssh restart
 
 # Install ngrok (v3)
 echo "🌐 Installing ngrok..."
