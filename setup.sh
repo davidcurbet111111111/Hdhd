@@ -41,7 +41,7 @@ read -p "🔑 Enter your ngrok authtoken: " NGROK_TOKEN
 
 # Start ngrok tunnel
 echo "🌍 Starting ngrok TCP tunnel on port 22..."
-ngrok tcp 22 > /dev/null 2>&1 &
+./ngrok tcp 22 > /dev/null 2>&1 &
 
 sleep 6
 
