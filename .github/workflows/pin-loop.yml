@@ -1,0 +1,22 @@
+name: Continuous PIN Generator (Bash)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-pin:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔁 Generate PIN continuously (cancel workflow to stop)
+        shell: bash
+        run: |
+          echo "Starting PIN generator... (cancel workflow to stop)"
+          while true; do
+            pin=$(( RANDOM % 9000 + 1000 ))
+            echo "Generated PIN: $pin"
+            sleep 1
+          done
