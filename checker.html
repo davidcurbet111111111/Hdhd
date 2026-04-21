@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CC Checker Pro - Live/Die</title>
+    <style>
+        :root { --bg: #0a0a0a; --card-bg: #151515; --live: #2ecc71; --die: #e74c3c; --unk: #f1c40f; --text: #ffffff; }
+        body { background: var(--bg); color: var(--text); font-family: 'Monaco', 'Consolas', monospace; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; background: var(--card-bg); border-radius: 10px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); border: 1px solid #333; }
+        textarea { width: 100%; height: 200px; background: #000; border: 1px solid #444; color: #00ff00; padding: 15px; border-radius: 5px; margin-bottom: 20px; resize: none; font-size: 14px; box-sizing: border-box; }
+        .controls { display: flex; gap: 15px; margin-bottom: 25px; }
+        button { flex: 1; padding: 15px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; font-size: 16px; }
+        .start { background: var(--live); color: #000; }
+        .stop { background: var(--die); color: #fff; }
+        button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: #222; padding: 15px; border-radius: 5px; text-align: center; border-bottom: 4px solid #444; }
+        .stat-card div { font-size: 24px; font-weight: bold; margin-top: 5px; }
+        #status-indicator { text-align: center; margin-bottom: 15px; color: #888; height: 20px; }
+        .log-box { height: 300px; overflow-y: scroll; background: #000; border: 1px solid #333; padding: 10px; font-size: 13px; }
+        .log-entry { padding: 8px; border-bottom: 1px solid #111; display: flex; justify-content: space-between; }
+        .status-msg { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="margin-top:0; color: var(--live);">🚀 CC CHECKER ENGINE</h2>
+    
+    <textarea id="ccInput" placeholder="Format: 4444555566667777|MM|YYYY|CVV (One per line)"></textarea>
+
+    <div id="status-indicator">Ready to check...</div>
+
+    <div class="controls">
+        <button id="btnStart" class="start" onclick="runChecker()">Start Check</button>
+        <button id="btnStop" class="stop" onclick="stopChecker()" disabled>Stop 🛑</button>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card" style="border-color: #3498db;">Total <div id="t_total">0</div></div>
+        <div class="stat-card" style="border-color: var(--live);">Live <div id="t_live" style="color: var(--live);">0</div></div>
+        <div class="stat-card" style="border-color: var(--die);">Die <div id="t_die" style="color: var(--die);">0</div></div>
+        <div class="stat-card" style="border-color: var(--unk);">Unknown <div id="t_unk" style="color: var(--unk);">0</div></div>
+    </div>
+
+    <div class="log-box" id="logs"></div>
+</div>
+
+<script>
+    let running = false;
+    let index = 0;
+    let cards = [];
+
+    async function runChecker() {
+        const input = document.getElementById('ccInput').value.trim();
+        if (!input) return alert("Please load some cards first!");
+
+        cards = input.split('\n').filter(l => l.length > 5);
+        document.getElementById('t_total').innerText = cards.length;
+        
+        // Reset counters
+        document.getElementById('t_live').innerText = 0;
+        document.getElementById('t_die').innerText = 0;
+        document.getElementById('t_unk').innerText = 0;
+        document.getElementById('logs').innerHTML = "";
+        
+        running = true;
+        index = 0;
+        
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('btnStop').disabled = false;
+        document.getElementById('status-indicator').innerText = "Starting generation... please wait...";
+
+        processLoop();
+    }
+
+    async function processLoop() {
+        if (!running || index >= cards.length) {
+            complete();
+            return;
+        }
+
+        let cc = cards[index].trim();
+        document.getElementById('status-indicator').innerText = `Checking: ${index + 1}/${cards.length}`;
+
+        // Simulated API Request Delay
+        await new Promise(r => setTimeout(r, 700));
+
+        const rnd = Math.random();
+        let status, msg, color;
+
+        if (rnd > 0.7) {
+            status = 'live';
+            msg = 'Card approved ✅';
+            color = 'var(--live)';
+        } else if (rnd > 0.3) {
+            status = 'die';
+            msg = 'Your card was declined ❌';
+            color = 'var(--die)';
+        } else {
+            status = 'unk';
+            msg = 'Unknown Response ⚠️';
+            color = 'var(--unk)';
+        }
+
+        updateUI(cc, msg, color, status);
+        index++;
+        processLoop();
+    }
+
+    function updateUI(cc, msg, color, status) {
+        const logBox = document.getElementById('logs');
+        const div = document.createElement('div');
+        div.className = 'log-entry';
+        div.innerHTML = `<span>${cc}</span> <span class="status-msg" style="color: ${color}">${msg}</span>`;
+        logBox.prepend(div);
+
+        const counter = document.getElementById('t_' + status);
+        counter.innerText = parseInt(counter.innerText) + 1;
+    }
+
+    function stopChecker() {
+        running = false;
+        document.getElementById('status-indicator').innerText = "Process Stopped 🛑";
+        document.getElementById('btnStart').disabled = false;
+        document.getElementById('btnStop').disabled = true;
+    }
+
+    function complete() {
+        running = false;
+        document.getElementById('status-indicator').innerHTML = "<b style='color:var(--live)'>Response ✅ Completed</b>";
+        document.getElementById('btnStart').disabled = false;
+        document.getElementById('btnStop').disabled = true;
+    }
+</script>
+
+</body>
+</html>
