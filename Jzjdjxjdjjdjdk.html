@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CC Live/Die Checker</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        textarea { width: 100%; height: 150px; }
+        .stats { margin: 10px 0; font-weight: bold; }
+        .live { color: green; }
+        .die { color: red; }
+        .unknown { color: orange; }
+    </style>
+</head>
+<body>
+    <h2>CC Checker (Format: cc|mm|yyyy|cvv)</h2>
+    <textarea id="ccList" placeholder="Enter cards here..."></textarea><br>
+    <button onclick="startCheck()">START 🚀</button>
+    <button onclick="stopCheck()">STOP 🛑</button>
+
+    <div class="stats">
+        Live: <span id="liveCount" class="live">0</span> |
+        Die: <span id="dieCount" class="die">0</span> |
+        Unknown: <span id="unknownCount" class="unknown">0</span>
+    </div>
+    <div id="results"></div>
+
+    <script>
+        let isRunning = false;
+        async function startCheck() {
+            isRunning = true;
+            const cards = document.getElementById('ccList').value.split('\n');
+            for (let card of cards) {
+                if (!isRunning) break;
+                if (card.trim() === "") continue;
+                // Simulation of check
+                const result = Math.random() > 0.5 ? 'live' : 'die';
+                updateStats(result, card);
+                await new Promise(r => setTimeout(r, 1000)); // Delay
+            }
+        }
+        function stopCheck() { isRunning = false; }
+        function updateStats(type, card) {
+            let countEl = document.getElementById(type + 'Count');
+            countEl.innerText = parseInt(countEl.innerText) + 1;
+            document.getElementById('results').innerHTML += `<p>${card} - <span class="${type}">${type.toUpperCase()}</span></p>`;
+        }
+    </script>
+</body>
+</html>
