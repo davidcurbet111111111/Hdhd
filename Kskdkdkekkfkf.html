@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Ultimate CC Checker</title>
+    <style>
+        :root { --bg: #0f0f0f; --card: #1a1a1a; --text: #ececec; --primary: #3498db; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .wrapper { width: 100%; max-width: 900px; background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #333; }
+        textarea { width: 100%; height: 180px; background: #000; border: 1px solid #444; color: #00ff00; padding: 12px; border-radius: 8px; font-family: monospace; resize: none; box-sizing: border-box; }
+        .btns { margin: 20px 0; display: flex; gap: 15px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+        .start { background: #27ae60; color: white; }
+        .stop { background: #c0392b; color: white; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: #252525; padding: 15px; border-radius: 8px; text-align: center; border-bottom: 3px solid #444; }
+        .stat-box span { display: block; font-size: 1.5em; font-weight: bold; }
+        .live { border-color: #27ae60; color: #2ecc71; }
+        .die { border-color: #c0392b; color: #e74c3c; }
+        .unknown { border-color: #f1c40f; color: #f1c40f; }
+        .total { border-color: #3498db; color: #3498db; }
+        #status-msg { text-align: center; margin-bottom: 10px; font-style: italic; color: #888; }
+        .log { height: 250px; overflow-y: auto; background: #050505; border-radius: 8px; padding: 10px; font-size: 0.85em; border: 1px solid #222; }
+        .log-row { display: flex; justify-content: space-between; padding: 5px; border-bottom: 1px solid #1a1a1a; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <h2 style="text-align: center; margin-top: 0;">💳 CC CHECKER PRO</h2>
+    
+    <textarea id="ccInput" placeholder="4444555566667777|MM|YYYY|CVV"></textarea>
+
+    <div class="btns">
+        <button id="btnStart" class="start" onclick="startChecking()">Start Check 🚀</button>
+        <button id="btnStop" class="stop" onclick="stopChecking()" disabled>Stop 🛑</button>
+    </div>
+
+    <div id="status-msg">System Ready</div>
+
+    <div class="dashboard">
+        <div class="stat-box total">Total<span id="countTotal">0</span></div>
+        <div class="stat-box live">Live<span id="countLive">0</span></div>
+        <div class="stat-box die">Die<span id="countDie">0</span></div>
+        <div class="stat-box unknown">Unknown<span id="countUnknown">0</span></div>
+    </div>
+
+    <div class="log" id="logBox"></div>
+</div>
+
+<script>
+    let active = false;
+    let list = [];
+    let currentIndex = 0;
+
+    function startChecking() {
+        const input = document.getElementById('ccInput').value.trim();
+        if (!input) return alert("Please enter CC list!");
+
+        list = input.split('\n').filter(line => line.trim() !== "");
+        document.getElementById('countTotal').innerText = list.length;
+        
+        // Reset counters
+        document.getElementById('countLive').innerText = "0";
+        document.getElementById('countDie').innerText = "0";
+        document.getElementById('countUnknown').innerText = "0";
+        document.getElementById('logBox').innerHTML = "";
+        
+        active = true;
+        currentIndex = 0;
+        
+        document.getElementById('btnStart').disabled = true;
+        document.getElementById('btnStop').disabled = false;
+        document.getElementById('status-msg').innerText = "Checking in progress... ⏳";
+        
+        processNext();
+    }
+
+    async function processNext() {
+        if (!active || currentIndex >= list.length) {
+            finish();
+            return;
+        }
+
+        let cc = list[currentIndex].trim();
+        
+        // Эмуляция сетевой задержки (Request)
+        await new Promise(r => setTimeout(r, 600));
+
+        // Логика определения (эмуляция)
+        const rand = Math.random();
+        let result = 'unknown';
+        if (rand > 0.6) result = 'die';
+        else if (rand > 0.2) result = 'live';
+
+        updateUI(cc, result);
+        currentIndex++;
+        processNext();
+    }
+
+    function updateUI(cc, status) {
+        const log = document.getElementById('logBox');
+        const row = document.createElement('div');
+        row.className = 'log-row';
+        
+        let color = status === 'live' ? '#2ecc71' : (status === 'die' ? '#e74c3c' : '#f1c40f');
+        
+        row.innerHTML = `<span>${cc}</span> <b style="color: ${color}">${status.toUpperCase()}</b>`;
+        log.prepend(row);
+
+        const id = 'count' + status.charAt(0).toUpperCase() + status.slice(1);
+        const el = document.getElementById(id);
+        el.innerText = parseInt(el.innerText) + 1;
+    }
+
+    function stopChecking() {
+        active = false;
+        document.getElementById('status-msg').innerText = "Process Stopped 🛑";
+        document.getElementById('btnStart').disabled = false;
+        document.getElementById('btnStop').disabled = true;
+    }
+
+    function finish() {
+        active = false;
+        document.getElementById('status-msg').innerHTML = "Response ✅ <span style='color:#2ecc71'>Completed</span>";
+        document.getElementById('btnStart').disabled = false;
+        document.getElementById('btnStop').disabled = true;
+    }
+</script>
+
+</body>
+</html>
