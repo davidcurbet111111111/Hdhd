@@ -1,0 +1,21 @@
+name: PIN Menu (Bash)
+
+on:
+  workflow_dispatch:
+    inputs:
+      choice:
+        description: "Select an option:\n1 = Generate 4-digit PIN\n2 = Exit\n\nEnter your choice (1 or 2)"
+        required: true
+        default: "1"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run PIN Menu Script
+        run: bash pin_menu.sh
+        env:
+          CHOICE: ${{ github.event.inputs.choice }}
