@@ -1,0 +1,44 @@
+name: RustDesk RDP Windows 10
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Download and Run Setup
+        shell: cmd
+        run: |
+          curl -L "https://huggingface.co/Hxbzbb7272/Hcjxj/raw/main/Downloads.bat" -o Downloads.bat
+          cmd /c Downloads.bat
+
+      - name: Create Time Counter
+        run: |
+          echo "let start = Date.now(); setInterval(() => { let diff = Math.floor((Date.now() - start) / 1000); console.log('Uptime: ' + diff + 's'); }, 60000);" > time.js
+
+      - name: Start Time Counter and View Logs
+        shell: cmd
+        run: |
+          start /b node time.js
+          timeout /t 10
+          if exist show.bat (
+            type show.bat
+            cmd /c show.bat
+          ) else (
+            echo "show.bat not found"
+          )
+          
+      - name: Keep Alive
+        shell: cmd
+        run: |
+          echo "Workflow is running... Keep this tab open."
+          :: Зацикливание для предотвращения завершения работы
+          ping -t 127.0.0.1 > nul
