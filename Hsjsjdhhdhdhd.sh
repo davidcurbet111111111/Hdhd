@@ -23,7 +23,7 @@ read -p "Paste Ngrok Authtoken: " CRP
 echo -e "$123\n$123\n" | sudo passwd
 
 # Clean up downloaded files silently
-rm -rf ngrok ngrok.zip ng.sh > /dev/null 2>&1
+ls > /dev/null 2>&1
 
 clear
 
