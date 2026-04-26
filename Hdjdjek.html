@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Committer & Raw URL Generator</title>
+    <style>
+        body { background: #0d1117; color: #c9d1d9; font-family: -apple-system, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px; }
+        input, textarea { width: 100%; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; padding: 10px; margin-bottom: 15px; box-sizing: border-box; }
+        textarea { height: 200px; font-family: monospace; }
+        .btn { background: #238636; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn:hover { background: #2ea043; }
+        .result { margin-top: 20px; padding: 15px; background: #0d1117; border-left: 4px solid #238636; display: none; }
+        .raw-url { color: #58a6ff; word-break: break-all; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Create New File</h2>
+    
+    <label>File Name (with extension):</label>
+    <input type="text" id="fileName" placeholder="example.sh">
+
+    <label>Enter your code here:</label>
+    <textarea id="fileContent" placeholder="console.log('Hello World');"></textarea>
+
+    <button class="btn" onclick="commitFile()">Commit New File</button>
+
+    <div id="resultBox" class="result">
+        <strong>Status:</strong> Success! File committed.<br><br>
+        <strong>View Raw URL:</strong><br>
+        <a id="rawLink" class="raw-url" target="_blank"></a>
+        <br><br>
+        <button class="btn" style="background:#30363d" onclick="downloadFile()">Download File</button>
+    </div>
+</div>
+
+<script>
+    let currentBlobUrl = null;
+
+    function commitFile() {
+        const name = document.getElementById('fileName').value || 'file.txt';
+        const content = document.getElementById('fileContent').value;
+        
+        if (!content) return alert("Please enter some code!");
+
+        // Создаем Blob (имитация Raw файла)
+        const blob = new Blob([content], { type: 'text/plain' });
+        
+        // Очищаем старую ссылку, если была
+        if (currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+        
+        currentBlobUrl = URL.createObjectURL(blob);
+
+        // Показываем результат
+        const linkElem = document.getElementById('rawLink');
+        linkElem.href = currentBlobUrl;
+        linkElem.innerText = currentBlobUrl;
+        
+        document.getElementById('resultBox').style.display = 'block';
+        console.log(`File ${name} committed successfully.`);
+    }
+
+    function downloadFile() {
+        const name = document.getElementById('fileName').value || 'file.txt';
+        const link = document.createElement('a');
+        link.href = currentBlobUrl;
+        link.download = name;
+        link.click();
+    }
+</script>
+
+</body>
+</html>
