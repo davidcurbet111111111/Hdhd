@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android VPN Daemon Console</title>
+    <style>
+        body { background: #000; color: #00ff00; font-family: 'Courier New', monospace; padding: 20px; text-align: center; }
+        .terminal { border: 2px solid #00ff00; border-radius: 10px; padding: 20px; box-shadow: 0 0 20px #00ff00; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #00ff00; color: #00ff00; border-radius: 5px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; margin-top: 15px; font-weight: bold; font-size: 16px; cursor: pointer; border: none; }
+        #start { background: #00ff00; color: #000; }
+        #stop { background: #ff0000; color: #fff; display: none; }
+        .path { font-size: 10px; color: #888; margin-top: 10px; word-break: break-all; }
+    </style>
+</head>
+<body>
+
+<div class="terminal">
+    <h3>VPN DAEMON: ANDROID_10</h3>
+    <input type="text" id="ip" placeholder="IP: 185.123.x.x">
+    <input type="text" id="port" placeholder="PORT: 8080">
+    <input type="text" id="user" placeholder="USERNAME">
+    <input type="password" id="pass" placeholder="PASSWORD">
+    
+    <button id="start" class="btn" onclick="deployDaemon()">START & EXPORT DAEMON</button>
+    <button id="stop" class="btn" onclick="stopDaemon()">STOP VPN DAEMON</button>
+
+    <div class="path" id="exportPath"></div>
+</div>
+
+<script>
+    function deployDaemon() {
+        const ip = document.getElementById('ip').value;
+        const port = document.getElementById('port').value;
+        const user = document.getElementById('user').value;
+        const pass = document.getElementById('pass').value;
+
+        if (!ip || !port) {
+            alert("Ошибка: Укажите IP и Port");
+            return;
+        }
+
+        // Контент PAC-скрипта (демона)
+        const pacScript = `
+        function FindProxyForURL(url, host) {
+            // Весь трафик направляется на Super Proxy
+            return "PROXY ${ip}:${port}";
+        }`;
+
+        // Создание файла и экспорт в /Download
+        const blob = new Blob([pacScript], { type: 'application/x-ns-proxy-autoconfig' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'super_proxy_daemon.pac';
+        link.click();
+
+        // Обновление UI
+        document.getElementById('exportPath').innerHTML = 
+            "FILE EXPORTED TO: /storage/emulated/0/Download/super_proxy_daemon.pac<br>" +
+            "USER_AGENT: Android 10 / Chrome";
+        document.getElementById('start').style.display = 'none';
+        document.getElementById('stop').style.display = 'block';
+
+        alert("Демон экспортирован в папку Download. Следуйте инструкциям настройки Wi-Fi.");
+    }
+
+    function stopDaemon() {
+        document.getElementById('start').style.display = 'block';
+        document.getElementById('stop').style.display = 'none';
+        document.getElementById('exportPath').innerText = "Status: VPN DEACTIVATED";
+        alert("Удалите путь к PAC-файлу в настройках Android для полной остановки.");
+    }
+</script>
+
+</body>
+</html>
